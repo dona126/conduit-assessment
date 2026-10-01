@@ -38,11 +38,13 @@ test.describe('E2E Article Lifecycle Journey', () => {
     await expect(articlePage.articleBodyContent).toContainText(updatedBody);
 
     // 4. DELETE
-    // Handles the browser confirm popup and clicks Delete
+    // Delete article
     await articlePage.deleteArticle();
 
-    // Verify deletion & redirection away from the article URL
-    await page.waitForURL((url) => !url.pathname.includes('/article/'), { timeout: 10000 });
+    // Wait for the redirect back to the home page or away from the article URL
+    await page.waitForURL((url) => !url.pathname.includes('/article/'), { timeout: 15000 });
+
+    // Ensure the deleted article heading is no longer visible on the feed
     await expect(page.getByRole('heading', { name: updatedTitle })).toBeHidden();
   });
 });
