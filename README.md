@@ -2,9 +2,9 @@
 
 A test automation suite for the RealWorld Conduit application built with Playwright, TypeScript, and the Page Object Model (POM) pattern.
 
----
 
-## Directory Structure
+
+# Directory Structure
 
 ```text
 conduit-assessment/
@@ -38,55 +38,52 @@ conduit-assessment/
 ├── tsconfig.json                      # TypeScript compiler configuration
 ├── package.json
 └── README.md
+```
 
 # Setup & Installation
 
-## Prerequisites
+### Prerequisites
 
 - Node.js (v18 or higher recommended)
 - npm (v9 or higher)
 
-## Steps
-
 ### Install Project Dependencies
-
 ```bash
 npm install
 ```
 
 ### Install Browser Binaries (Chromium)
-
 ```bash
 npx playwright install --with-deps chromium
 ```
 
 # Running the Tests
 
-## Run All Test Suites
+### Run All Test Suites
 
 ```bash
 npx playwright test
 ```
 
-## Run in Headed Browser Mode
+### Run in Headed Browser Mode
 
 ```bash
 npx playwright test --headed
 ```
 
-## Run Only API Tests
+### Run Only API Tests
 
 ```bash
 npx playwright test tests/api/
 ```
 
-## Run Only E2E Tests
+### Run Only E2E Tests
 
 ```bash
 npx playwright test tests/e2e/
 ```
 
-## Open HTML Test Report
+### Open HTML Test Report
 
 ```bash
 npx playwright show-report
