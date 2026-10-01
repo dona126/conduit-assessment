@@ -31,8 +31,13 @@ test.describe('E2E Article Lifecycle Journey', () => {
     await expect(articlePage.articleTitleHeader).toHaveText(updatedTitle);
     await expect(articlePage.articleBodyContent).toContainText(updatedBody);
 
+    // Delete article using robust dialog handling
     await articlePage.deleteArticle();
-    await page.waitForURL('**/');
-    await expect(page.locator(`text=${updatedTitle}`)).toHaveCount(0);
+
+    // Wait for redirect away from the article page
+    await page.waitForURL((url) => !url.pathname.includes('/article/'), { timeout: 10000 });
+
+    // Assert the deleted article title is no longer displayed on the feed
+    await expect(page.getByRole('heading', { name: updatedTitle })).toBeHidden();
   });
 });

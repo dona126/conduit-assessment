@@ -48,9 +48,9 @@ export class ArticlePage extends BasePage {
   }
 
   async deleteArticle() {
-    this.page.once('dialog', async (dialog) => {
-      await dialog.accept();
-    });
+    const dialogPromise = this.page.waitForEvent('dialog');
     await this.deleteArticleButton.click();
+    const dialog = await dialogPromise;
+    await dialog.accept();
   }
 }
