@@ -203,9 +203,6 @@ For the **Agent** role, I would specifically create students for two different a
 
 
 `ANSWER`
-
-## 3. The Friday Config Change
-
 If an admin changes Canada's document checklist at 5pm on Friday, a few things could break:
 
 - The wrong documents may be shown for new Canada applications.
@@ -239,7 +236,6 @@ If any of these tests fail, the CI pipeline is marked as failed and the issue ca
 ### ❓ Q4. 4.Stability: the app is a data-heavy SPA. What are your top techniques for keeping the suite fast and non-flaky (data isolation, waits, retries, parallelism)?
 
 `ANSWER`
-
 Since the application is a data-heavy SPA, I would focus on keeping the tests independent, waiting for real application conditions, and avoiding unnecessary retries.
 
 ### Techniques I Would Use
