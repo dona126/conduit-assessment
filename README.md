@@ -142,3 +142,61 @@ By testing both layers, we ensure the backend enforces strict authorization whil
 
 2. **Visual Regression Testing**:
    - Add snapshot comparison checks (`expect(page).toHaveScreenshot()`) for markdown article rendering and mobile viewports to prevent UI layout regressions.
+
+
+# Part 2 — Think: the GSP scenario
+### ❓ Q1. Coverage first: list the 8–10 journeys you would automate first for GSP and the ordering logic behind them.
+
+> I would automate the following journeys first:
+1. Create a new enquiry – Verify that a new student can be added successfully.
+2. Move an enquiry to application – Verify that the application progresses correctly through the first stages.
+3. Complete the document checklist – Verify that the correct documents are shown based on the selected destination market.
+4. Validate missing mandatory documents – Make sure an application cannot move forward when required documents are missing.
+5. Move an application through the main stages – Verify the important transitions from application → offer → CAS/visa → enrolment.
+6. Agent access – Verify that an agent can see only their own students and cannot access another agent's students.
+7. Admin document configuration – Verify that an admin can add or change required documents for a market.
+8. Role-based access – Verify that Admin, Staff and Agent have access only to the actions allowed for their roles.
+9. Application rejection/withdrawal – Verify that applications can be moved to the appropriate end state and cannot continue incorrectly.
+10. End-to-end student journey – Create a student and take the application from enquiry through to enrolment.
+
+Ordering logic:
+I would start with the main business flow and the areas that could affect many users: application creation, documents and stage movement. Then I would cover permissions because incorrect access is a major risk, especially for agents. After that, I would cover less frequent scenarios such as configuration, rejection/withdrawal, and finally the complete end-to-end journey.
+
+### ❓ Q2.  Provably safe permissions: describe how you would test the 3-role permission model so a regression cannot ship silently. Sketch the test matrix.
+
+>I would test each role against the same set of actions and check both **what the user can see and what they can actually do**. I would also test direct URL/API access, not only the UI, so a permission issue cannot pass silently.
+
+### Permission Test Matrix
+
+| Action | Admin | Staff | Agent |
+|---|---|---|---|
+| View all students | Allow | Allow | Own students only |
+| View another agent's student | Allow | Allow | Deny |
+| Create student/application | Allow | Allow | Allow, if permitted |
+| Edit student/application | Allow | Allow | Own students only |
+| Move application stage | Allow | Allow | Own students only |
+| Configure market documents | Allow | Deny | Deny |
+| Manage users/roles | Allow | Deny | Deny |
+| Delete student/application | Allow | Based on permission | Deny |
+| Access another user's data through direct URL/API | Allow | Allow | Deny |
+
+### How I Would Test It
+
+For each role, I would:
+
+1. Log in with the role and verify the correct UI actions are available.
+2. Try actions that the role should **not** have access to.
+3. Try accessing restricted records using a direct URL.
+4. If APIs are available, send the same request directly through the API and verify it is rejected.
+5. Verify that changing the role does not leave previously granted access behind.
+6. Run these tests in CI on every pull request so a permission regression fails the pipeline instead of reaching production.
+
+For the **Agent** role, I would specifically create students for two different agents and verify that each agent can access only their own students. This would be one of the critical regression tests because exposing another agent's students would be a serious authorization issue.
+
+### ❓ Q3. 
+
+>
+
+### ❓ Q4. 
+
+>
