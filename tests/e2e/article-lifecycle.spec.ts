@@ -5,7 +5,6 @@ import { createUserData, createArticleData } from '../../src/utils/testData';
 
 test.describe('E2E Article Lifecycle Journey', () => {
   test('Create -> Edit -> Verify -> Delete Article', async ({ page, request }) => {
-    // 0. SEED USER & AUTH STATE (API-accelerated)
     const apiClient = new ConduitApiClient(request);
     const userData = createUserData();
     const { token } = await apiClient.registerUser(userData);
@@ -13,7 +12,6 @@ test.describe('E2E Article Lifecycle Journey', () => {
     const articlePage = new ArticlePage(page);
     await articlePage.injectAuthToken(token);
 
-    // 1. CREATE
     const articleData = createArticleData();
     await articlePage.navigateToEditor();
     await articlePage.fillAndPublishArticle(
@@ -23,28 +21,18 @@ test.describe('E2E Article Lifecycle Journey', () => {
       'playwright'
     );
 
-    // Initial state check after creation
     await expect(articlePage.articleTitleHeader).toHaveText(articleData.title);
     await expect(articlePage.articleBodyContent).toContainText(articleData.body);
 
-    // 2. EDIT
     const updatedTitle = `${articleData.title} Edited`;
     const updatedBody = `${articleData.body} Updated.`;
     await articlePage.updateArticle(updatedTitle, updatedBody);
 
-    // 3. VERIFY
-    // Validates that title and Markdown body content updated in the DOM
     await expect(articlePage.articleTitleHeader).toHaveText(updatedTitle);
     await expect(articlePage.articleBodyContent).toContainText(updatedBody);
 
-    // 4. DELETE
-    // Delete article
     await articlePage.deleteArticle();
-
-    // Wait for the redirect back to the home page or away from the article URL
-    await page.waitForURL((url) => !url.pathname.includes('/article/'), { timeout: 15000 });
-
-    // Ensure the deleted article heading is no longer visible on the feed
-    await expect(page.getByRole('heading', { name: updatedTitle })).toBeHidden();
+    await page.waitForURL('**/');
+    await expect(page.locator(`text=${updatedTitle}`)).toHaveCount(0);
   });
 });

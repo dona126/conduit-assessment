@@ -48,12 +48,9 @@ export class ArticlePage extends BasePage {
   }
 
   async deleteArticle() {
-    // If the application displays a confirmation dialog, accept it automatically
     this.page.once('dialog', async (dialog) => {
       await dialog.accept();
     });
-
-    // Click the delete button directly
-    await this.deleteArticleButton.first().click();
+    await this.deleteArticleButton.click();
   }
 }

@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright Browsers (Chromium, Firefox)
+      - name: Install Playwright Browsers (Chromium)
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
