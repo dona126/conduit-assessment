@@ -2,6 +2,7 @@
 
 A test automation suite for the RealWorld Conduit application built with Playwright, TypeScript, and the Page Object Model (POM) pattern.
 
+---
 
 
 # Directory Structure
@@ -39,6 +40,7 @@ conduit-assessment/
 ├── package.json
 └── README.md
 ```
+---
 
 # Setup & Installation
 
@@ -56,6 +58,7 @@ npm install
 ```bash
 npx playwright install --with-deps chromium
 ```
+---
 
 # Running the Tests
 
@@ -143,11 +146,13 @@ By testing both layers, we ensure the backend enforces strict authorization whil
 2. **Visual Regression Testing**:
    - Add snapshot comparison checks (`expect(page).toHaveScreenshot()`) for markdown article rendering and mobile viewports to prevent UI layout regressions.
 
+---
 
 # Part 2 — Think: the GSP scenario
 ### ❓ Q1. Coverage first: list the 8–10 journeys you would automate first for GSP and the ordering logic behind them.
 
-> I would automate the following journeys first:
+`ANSWER`
+I would automate the following journeys first:
 1. Create a new enquiry – Verify that a new student can be added successfully.
 2. Move an enquiry to application – Verify that the application progresses correctly through the first stages.
 3. Complete the document checklist – Verify that the correct documents are shown based on the selected destination market.
@@ -164,7 +169,8 @@ I would start with the main business flow and the areas that could affect many u
 
 ### ❓ Q2.  Provably safe permissions: describe how you would test the 3-role permission model so a regression cannot ship silently. Sketch the test matrix.
 
->I would test each role against the same set of actions and check both **what the user can see and what they can actually do**. I would also test direct URL/API access, not only the UI, so a permission issue cannot pass silently.
+`ANSWER`
+I would test each role against the same set of actions and check both **what the user can see and what they can actually do**. I would also test direct URL/API access, not only the UI, so a permission issue cannot pass silently.
 
 ### Permission Test Matrix
 
@@ -193,10 +199,65 @@ For each role, I would:
 
 For the **Agent** role, I would specifically create students for two different agents and verify that each agent can access only their own students. This would be one of the critical regression tests because exposing another agent's students would be a serious authorization issue.
 
-### ❓ Q3. 
+### ❓ Q3. The Friday config change: an admin edits Canada’s document checklist at 5pm on a Friday. What can break, and how does your automation catch it before Monday?
 
->
 
-### ❓ Q4. 
+`ANSWER`
 
->
+## 3. The Friday Config Change
+
+If an admin changes Canada's document checklist at 5pm on Friday, a few things could break:
+
+- The wrong documents may be shown for new Canada applications.
+- A required document may be missing or an old document may still be shown.
+- Existing applications could be affected unexpectedly.
+- An application might be allowed to move to the next stage even when a new mandatory document is missing.
+- Agents or staff could see incorrect document requirements.
+
+### How I Would Test It
+
+I would automate the configuration and application flow:
+
+1. Create a test application for Canada and verify the current document checklist.
+2. Change Canada's checklist as an Admin, for example, add a new mandatory document.
+3. Create a new Canada application and verify that the new document appears.
+4. Verify that the application cannot move to the next stage until the mandatory document is completed.
+5. Check an existing application to confirm whether the change affects it as expected.
+6. Verify that other markets are not affected by the Canada configuration change.
+7. Verify that Staff and Agents see the correct checklist based on their permissions.
+
+### How It Is Caught Before Monday
+
+These tests would run automatically in the GitHub Actions CI pipeline after the configuration-related code change or deployment.
+
+The pipeline would run the critical regression tests for:
+
+**Market configuration → Document checklist → Mandatory document validation → Application stage transition → Role-based access**
+
+If any of these tests fail, the CI pipeline is marked as failed and the issue can be investigated before the change reaches normal business usage on Monday.
+
+### ❓ Q4. 4.Stability: the app is a data-heavy SPA. What are your top techniques for keeping the suite fast and non-flaky (data isolation, waits, retries, parallelism)?
+
+`ANSWER`
+
+Since the application is a data-heavy SPA, I would focus on keeping the tests independent, waiting for real application conditions, and avoiding unnecessary retries.
+
+### Techniques I Would Use
+
+- **Data isolation:** Create unique test data for each test using dynamic values such as timestamps. Tests should not depend on data created by another test.
+
+- **API-based setup:** Use APIs to create users, students, or applications where possible instead of creating all the data through the UI. This makes tests faster and reduces UI-related failures.
+
+- **Reliable waits:** Avoid fixed waits like `waitForTimeout()`. Wait for specific conditions such as an API response, element state, URL change, or expected data to be loaded.
+
+- **Retries:** Use a small number of retries in CI for temporary issues. I would not use retries to hide real test failures. If a test passes only after a retry, I would investigate it as a possible flaky test.
+
+- **Parallel execution:** Run independent tests in parallel to reduce execution time. Tests that share or modify the same data should use isolated data or run separately.
+
+- **Stable locators:** Prefer reliable locators such as `getByRole`, `getByLabel`, and unique test IDs instead of fragile CSS or XPath selectors.
+
+- **Clean-up:** Remove or reset test data after execution where required, so repeated runs start from a predictable state.
+
+- **Trace and screenshots:** Enable Playwright traces, screenshots, and videos on failure in CI to help investigate intermittent failures.
+
+The main goal is to make each test **independent, deterministic, and fast**, rather than simply adding more waits or retries.
